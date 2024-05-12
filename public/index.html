@@ -1,60 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WebSocket Client</title>
-    <script>
-        const ws = new WebSocket('ws://localhost:8080'); // Match server's port
-
-        ws.onopen = () => {
-            console.log("Connected to WebSocket server");
-        };
-
-        // ANY MESSAGE FROM SOCKET
-        ws.onmessage = (event) => {
-            const message = JSON.parse(event.data)
-            switch (message.type) {
-                case 'connection':
-                    document.getElementById("clientCount").innerText = message.size;
-                    
-                    break;
-                case 'textchange':
-                    common_text.value = message.text
-                    break;
-                case 'codechange':
-                    console.log(message.changedcode)
-                    code.value = message.changedcode
-                    break;
-                case 'issue':event
-                    break
-                default:
-                    break;
-            }
-        };
-
-        // ON ISSUE OR ANY OTHER THINGS
-        function codeidchange(){
-            ws.send(JSON.stringify({
-                type: "codeidchange",
-                codeid: codeid.value,
-                previous: previous_codeid
-            }))
-            previous_codeid = codeid.value
-        }
-
-        let previous_codeid = undefined
-
-        function codechange(){
-            ws.send(JSON.stringify({
-                type: "codechange",
-                codeid: codeid.value,
-                code: code.value,
-            }))
-        }
-    </script>
+    <title>CodePulse</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <p>Connected Clients: <span id="clientCount"></span></p>
-    <input type="text" name="codeid" id="codeid" oninput="codeidchange()" placeholder="codeid" autocomplete="off">
-    <textarea name="code" id="code" cols="45" oninput="codechange()" placeholder="code here" rows="9" autocomplete="off"></textarea>
+    <div class="dfr">
+        <input type="text" name="codeid" id="codeid" oninput="codeidchange()" placeholder="codeid" autocomplete="off">
+        <p class="nclient">Watchers: <span id="clientCount">0</span></p>
+        <a class="copy_link" id="copy_link" onclick="copytoclipboard()">copy link</a>
+    </div>
+    <textarea name="code" id="code" oninput="codechange()" placeholder="code here" autocomplete="off"></textarea>
+    <script src="script.js"></script>
 </body>
 </html>

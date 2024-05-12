@@ -22,6 +22,16 @@ server.on('connection', (self) => {
 
                     if (codes[message.previous].clients.length == 0)
                         delete codes[message.previous]
+                    else
+                    {
+                        codes[message.previous].clients.forEach(client => {
+                            client.send(JSON.stringify({
+                                type: 'codechange',
+                                changedcode: codes[message.previous].code,
+                                nclients: codes[message.previous].clients.length
+                            }))
+                        })
+                    }
                 }
 
                 if (message.codeid == '')
@@ -29,11 +39,14 @@ server.on('connection', (self) => {
 
                 if (codes[message.codeid])
                 {
-                    self.send(JSON.stringify({
-                        type: 'codechange',
-                        changedcode: codes[message.codeid].code
-                    }))
                     codes[message.codeid].clients.push(self)
+                    codes[message.codeid].clients.forEach(client => {
+                        client.send(JSON.stringify({
+                            type: 'codechange',
+                            changedcode: codes[message.codeid].code,
+                            nclients: codes[message.codeid].clients.length
+                        }))
+                    })
                 }
                 else
                 {
@@ -41,10 +54,13 @@ server.on('connection', (self) => {
                         clients: [self],
                         code: ''
                     }
-                    self.send(JSON.stringify({
-                        type: 'codechange',
-                        changedcode: codes[message.codeid].code
-                    }))
+                    codes[message.codeid].clients.forEach(client => {
+                        client.send(JSON.stringify({
+                            type: 'codechange',
+                            changedcode: codes[message.codeid].code,
+                            nclients: codes[message.codeid].clients.length
+                        }))
+                    })
                 }
                 
                 self.codeid = message.codeid;
@@ -59,7 +75,8 @@ server.on('connection', (self) => {
                     {
                         client.send(JSON.stringify({
                             type: 'codechange',
-                            changedcode: codes[message.codeid].code
+                            changedcode: codes[message.codeid].code,
+                            nclients: codes[message.codeid].clients.length
                         }))
                     }
                 })
@@ -84,7 +101,25 @@ server.on('connection', (self) => {
     })
 
     self.on('close',() => {
-        delete codes[self.codeid]
+        if (codes[self.codeid])
+        {
+            const index = codes[self.codeid].clients.indexOf(self);
+            if (index > -1) {
+                codes[self.codeid].clients.splice(index, 1);
+            }
+            if (codes[self.codeid].clients == 0)
+                delete codes[self.codeid]
+            else
+            {
+                codes[self.codeid].clients.forEach(client => {
+                    client.send(JSON.stringify({
+                        type: 'codechange',
+                        changedcode: codes[self.codeid].code,
+                        nclients: codes[self.codeid].clients.length
+                    }))
+                })
+            }
+        }
     })
 
     // Broadcast the current client count to all connected clients
