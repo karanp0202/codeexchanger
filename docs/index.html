@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CodePulse</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dfr">
+        <input type="text" name="codeid" id="codeid" oninput="codeidchange()" placeholder="codeid" autocomplete="off">
+        <p class="nclient">Watchers: <span id="clientCount">0</span></p>
+        <a class="copy_link" id="copy_link" onclick="copytoclipboard()">copy link</a>
+    </div>
+    <textarea name="code" id="code" oninput="codechange()" placeholder="code here" autocomplete="off"></textarea>
+    <script src="script.js"></script>
+</body>
+</html>
