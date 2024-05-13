@@ -6,13 +6,13 @@ codeid.readOnly = true
 codeid.placeholder = 'connecting...'
 
 ws.onopen = () => {
+    code.readOnly = false
+    codeid.readOnly = false
+    codeid.placeholder = 'enter random id here'
     if (window.location.hash)
     {
         codeid.value = window.location.hash.slice(1)
         codeidchange()
-        code.readOnly = false
-        codeid.readOnly = false
-        codeid.placeholder = 'enter random id here'
     }
 };
 
