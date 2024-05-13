@@ -39,6 +39,7 @@ function codeidchange(){
     if (codeid.value == '')
     {
         document.getElementById("clientCount").innerText = '0'
+        code.value = ''
     }
 }
 
