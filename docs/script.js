@@ -1,4 +1,5 @@
 const ws = new WebSocket('wss://codexchanger.azurewebsites.net'); // Match server's port
+// const ws = new WebSocket('ws://127.0.0.1:8080'); // Match server's port
 
 ws.onopen = () => {
     if (window.location.hash)
@@ -35,6 +36,10 @@ function codeidchange(){
     }))
     previous_codeid = codeid.value
     window.location.hash = '#' + codeid.value
+    if (codeid.value == '')
+    {
+        document.getElementById("clientCount").innerText = '0'
+    }
 }
 
 let previous_codeid = undefined

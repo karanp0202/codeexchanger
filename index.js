@@ -2,7 +2,38 @@ const WebSocket = require('ws');
 
 const server = new WebSocket.Server({ port: 8080 });
 
-const codes = {
+const codes = { }
+
+function clearCode(codeid) {
+
+    if (codes[codeid].clients.length == 0)
+    {
+        if (codes[codeid].code == '')
+        {
+            delete codes[codeid]
+        }
+        else
+        {
+            console.log(codeid + ': code not empty! settings timeout');
+            codes[codeid].timeout = setTimeout(() => {
+                if (codes[codeid].clients.length == 0)
+                {
+                    console.log(codeid + ': timeout hit code empty deleting...');
+                    delete codes[codeid]
+                }
+            }, 1000 * 60 * 60 * 24)
+        }
+    }
+    else
+    {
+        codes[codeid].clients.forEach(client => {
+            client.send(JSON.stringify({
+                type: 'codechange',
+                changedcode: codes[codeid].code,
+                nclients: codes[codeid].clients.length
+            }))
+        })
+    }
 }
 
 server.on('connection', (self) => {
@@ -20,18 +51,7 @@ server.on('connection', (self) => {
                         codes[message.previous].clients.splice(index, 1);
                     }
 
-                    if (codes[message.previous].clients.length == 0)
-                        delete codes[message.previous]
-                    else
-                    {
-                        codes[message.previous].clients.forEach(client => {
-                            client.send(JSON.stringify({
-                                type: 'codechange',
-                                changedcode: codes[message.previous].code,
-                                nclients: codes[message.previous].clients.length
-                            }))
-                        })
-                    }
+                    clearCode(message.previous)
                 }
 
                 if (message.codeid == '')
@@ -39,6 +59,11 @@ server.on('connection', (self) => {
 
                 if (codes[message.codeid])
                 {
+                    if (codes[message.codeid].clients.length == 0)
+                    {
+                        console.log(message.codeid + ': client connected clearing timeout')
+                        clearTimeout(codes[message.codeid].timeout)
+                    }
                     codes[message.codeid].clients.push(self)
                     codes[message.codeid].clients.forEach(client => {
                         client.send(JSON.stringify({
@@ -107,18 +132,7 @@ server.on('connection', (self) => {
             if (index > -1) {
                 codes[self.codeid].clients.splice(index, 1);
             }
-            if (codes[self.codeid].clients == 0)
-                delete codes[self.codeid]
-            else
-            {
-                codes[self.codeid].clients.forEach(client => {
-                    client.send(JSON.stringify({
-                        type: 'codechange',
-                        changedcode: codes[self.codeid].code,
-                        nclients: codes[self.codeid].clients.length
-                    }))
-                })
-            }
+            clearCode(self.codeid)
         }
     })
 
