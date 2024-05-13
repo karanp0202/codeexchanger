@@ -1,11 +1,18 @@
 const ws = new WebSocket('wss://codexchanger.azurewebsites.net'); // Match server's port
 // const ws = new WebSocket('ws://127.0.0.1:8080'); // Match server's port
 
+code.readOnly = true
+codeid.readOnly = true
+codeid.placeholder = 'connecting...'
+
 ws.onopen = () => {
     if (window.location.hash)
     {
         codeid.value = window.location.hash.slice(1)
         codeidchange()
+        code.readOnly = false
+        codeid.readOnly = false
+        codeid.placeholder = 'enter random id here'
     }
 };
 
